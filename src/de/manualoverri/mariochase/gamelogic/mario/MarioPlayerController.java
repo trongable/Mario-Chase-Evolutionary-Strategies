@@ -18,10 +18,12 @@ public class MarioPlayerController implements MarioChasePlayerController, Evolut
     private MarioPlayer player;
     private int generation;
     private boolean running;
+    int currentCycle;
 
     public MarioPlayerController() {
         player = null;
         generation = 0;
+        currentCycle = 0;
         running = false;
     }
 
@@ -62,9 +64,12 @@ public class MarioPlayerController implements MarioChasePlayerController, Evolut
             return;
         }
 
-        setPlayerDirections();
-        player.step();
+        if (currentCycle % 5 == 0) {
+            setPlayerDirections();
+        }
 
+        player.step();
+        currentCycle++;
     }
 
     @Override

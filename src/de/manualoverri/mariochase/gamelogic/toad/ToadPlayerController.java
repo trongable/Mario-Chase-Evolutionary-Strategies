@@ -60,17 +60,12 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
         String sql = "SELECT COUNT(*) from lu_toad_player where selected=0";
         int currentPopulationSize = DbHelper.getScalar(sql);
 
-        if (currentPopulationSize == ESHelper.POPULATION_SIZE) {
+        if (currentPopulationSize >= ESHelper.POPULATION_SIZE) {
             Population population = PopulationImpl.getFromPlayerTypeAndGeneration(MarioChasePlayerType.TOAD, generation);
             population.evolveMuPlusLambda(5, 20, 1, 0.1);
             population.saveIndividualsAsPlayersInDb();
             onEvolutionComplete();
         }
-
-        Population population = PopulationImpl.getFromPlayerTypeAndGeneration(MarioChasePlayerType.TOAD, generation);
-        population.evolveMuPlusLambda(1, 4, 1, 0.1);
-        population.saveIndividualsAsPlayersInDb();
-        onEvolutionComplete();
 
         for (ToadPlayer player : players) {
             player.reload(generation);
@@ -90,10 +85,15 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
         setPlayerDirections();
 
         for (ToadPlayer player : players) {
-            if (Math.random() > 0.25) {
-                player.stepAndUpdateDistances(marioLocation);
+            if (player.getCurrentDistanceFromMario() <= player.getDiveRange()) {
+                if (Math.random() > player.getDiveLikeliness()) {
+                    player.diveAndUpdateDistances(marioLocation);
+
+                } else {
+                    player.stepAndUpdateDistances(marioLocation);
+                }
             } else {
-                player.diveAndUpdateDistances(marioLocation);
+                player.stepAndUpdateDistances(marioLocation);
             }
         }
     }
@@ -170,5 +170,24 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     @Override
     public void onEvolutionComplete() {
         generation++;
+    }
+
+    public void updateMarioLocationAfterHeadstart(Point marioLocation) {
+        this.marioLocation = marioLocation;
+        for (ToadPlayer player : players) {
+            player.updateDistances(this.marioLocation);
+        }
+    }
+
+    public boolean checkWinCondition() {
+        if (running) {
+            for (ToadPlayer player : players) {
+                if (player.getCurrentDistanceFromMario() <= MarioChaseHelper.TOUCH_DISTANCE) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

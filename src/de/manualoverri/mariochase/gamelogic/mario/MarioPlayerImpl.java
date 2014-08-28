@@ -1,6 +1,7 @@
 package de.manualoverri.mariochase.gamelogic.mario;
 
 import de.manualoverri.mariochase.gamelogic.*;
+import de.manualoverri.mariochase.gamelogic.Point;
 
 import java.awt.*;
 
@@ -18,7 +19,6 @@ public class MarioPlayerImpl implements MarioPlayer {
     private int direction;
     private de.manualoverri.mariochase.gamelogic.Point location;
     private Color color;
-    private boolean saved;
 
     public static MarioPlayerImpl getInstance() throws PlayerCountException {
         if (marioCount < MAX_MAX_COUNT) {
@@ -30,9 +30,8 @@ public class MarioPlayerImpl implements MarioPlayer {
 
     private MarioPlayerImpl() {
         direction = MarioChaseHelper.MARIO_STARTING_DIRECTION;
-        location = MarioChaseHelper.MARIO_STARTING_LOCATION;
+        location = new Point(MarioChaseHelper.MARIO_STARTING_LOCATION.getX(), MarioChaseHelper.MARIO_STARTING_LOCATION.getY());
         color = MarioChaseHelper.MARIO_PLAYER_COLOR;
-        saved = false;
     }
 
     @Override
@@ -101,14 +100,15 @@ public class MarioPlayerImpl implements MarioPlayer {
 
     @Override
     public void reset() {
-
+        direction = MarioChaseHelper.MARIO_STARTING_DIRECTION;
+        location = new Point(MarioChaseHelper.MARIO_STARTING_LOCATION.getX(), MarioChaseHelper.MARIO_STARTING_LOCATION.getY());
     }
 
     @Override
     public void paintPlayer(Graphics g) {
         g.setColor(color);
         g.fillOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
-        //g.setColor(Color.decode("0xCF4647"));
-        //g.drawOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
+        g.setColor(Color.decode("0x000000"));
+        g.drawOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
     }
 }

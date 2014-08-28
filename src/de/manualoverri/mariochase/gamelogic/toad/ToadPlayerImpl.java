@@ -18,6 +18,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
     private static int toadCount = 0;
     private final static int DIVE_LOCK_CYCLES = 15;
 
+    private int id;
     private double checkAheadDistance;
     private double diveRange;
     private double diveLikeliness;
@@ -52,7 +53,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
 
         playerNumber = toadCount;
         direction = MarioChaseHelper.TOAD_STARTING_DIRECTIONS[playerNumber];
-        location = MarioChaseHelper.TOAD_STARTING_LOCATIONS[playerNumber];
+        location = new Point(MarioChaseHelper.TOAD_STARTING_LOCATIONS[playerNumber].getX(), MarioChaseHelper.TOAD_STARTING_LOCATIONS[playerNumber].getY());
         color = MarioChaseHelper.TOAD_PLAYER_COLORS[playerNumber];
         currentDistanceFromMario = MarioChaseHelper.TOAD_STARTING_DISTANCE;
         lastDistanceFromMario = MarioChaseHelper.TOAD_STARTING_DISTANCE; // TODO: check for bugs here
@@ -67,6 +68,14 @@ public final class ToadPlayerImpl implements ToadPlayer {
     }
 
     //region ToadPlayer Implementation
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public Point getLocation() {
         return location;
@@ -135,7 +144,6 @@ public final class ToadPlayerImpl implements ToadPlayer {
             throw new IllegalArgumentException(String.format("Dive likeliness must be between %f and %f, dive likeliness=%f",
                     MarioChaseHelper.MIN_DIVE_LIKELINESS, MarioChaseHelper.MAX_DIVE_LIKELINESS, diveLikeliness));
         }
-
     }
 
     private void step() {
@@ -264,13 +272,16 @@ public final class ToadPlayerImpl implements ToadPlayer {
             checkAheadDistance = MarioChaseHelper.randDouble(MarioChaseHelper.MIN_CHECK_AHEAD_DISTANCE, MarioChaseHelper.MAX_CHECK_AHEAD_DISTANCE);
             diveRange = MarioChaseHelper.randDouble(MarioChaseHelper.MIN_DIVE_RANGE, MarioChaseHelper.MAX_DIVE_RANGE);
             diveLikeliness = MarioChaseHelper.randDouble(MarioChaseHelper.MIN_DIVE_LIKELINESS, MarioChaseHelper.MAX_DIVE_LIKELINESS);
-        }
-        else {
+        } else {
             ResultSet toadRow = DbHelper.executeQuery("select * from lu_toad_player where selected=0 and generation=" + generation + " LIMIT 1");
             try {
-                checkAheadDistance = toadRow.getDouble("check_ahead_distance");
-                diveRange = toadRow.getDouble("dive_range");
-                diveLikeliness = toadRow.getDouble("dive_likeliness");
+                if (toadRow.next()) {
+                    id = toadRow.getInt("id");
+                    checkAheadDistance = toadRow.getDouble("check_ahead_distance");
+                    diveRange = toadRow.getDouble("dive_range");
+                    diveLikeliness = toadRow.getDouble("dive_likeliness");
+                    markSelected();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -281,7 +292,6 @@ public final class ToadPlayerImpl implements ToadPlayer {
     public void reset() {
         direction = MarioChaseHelper.TOAD_STARTING_DIRECTIONS[playerNumber];
         location = MarioChaseHelper.TOAD_STARTING_LOCATIONS[playerNumber];
-        color = MarioChaseHelper.TOAD_PLAYER_COLORS[playerNumber];
         currentDistanceFromMario = MarioChaseHelper.TOAD_STARTING_DISTANCE;
         lastDistanceFromMario = MarioChaseHelper.TOAD_STARTING_DISTANCE;
         totalDistanceFromMario = 0;
@@ -289,6 +299,11 @@ public final class ToadPlayerImpl implements ToadPlayer {
         totalClosingRate = 0;
         diveLock = false;
         remainingDiveLockCycles = 0;
+    }
+
+    @Override
+    public void markSelected() {
+        DbHelper.executeUpdate("update lu_toad_player set selected=1 where id=" + id);
     }
 
     @Override

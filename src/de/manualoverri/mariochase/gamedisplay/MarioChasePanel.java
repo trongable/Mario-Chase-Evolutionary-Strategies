@@ -7,6 +7,7 @@ import de.manualoverri.mariochase.gamelogic.mario.MarioPlayerImpl;
 import de.manualoverri.mariochase.gamelogic.toad.ToadPlayer;
 import de.manualoverri.mariochase.gamelogic.toad.ToadPlayerController;
 import de.manualoverri.mariochase.gamelogic.toad.ToadPlayerImpl;
+import de.manualoverri.mariochase.learning.DbHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,6 +45,9 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     }
 
     private void init() {
+        DbHelper.executeUpdate("delete from lu_toad_player");
+        DbHelper.executeUpdate("delete from lu_toad_individual");
+
         gameTimer = new Timer(CYCLE_INTERVAL_MS, this);
         marioController = new MarioPlayerController();
         toadController = new ToadPlayerController();
@@ -97,7 +101,6 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     public void keyPressed(KeyEvent e) {
         if (e.getKeyChar() == ' ') {
             marioController.resume();
-            toadController.resume();
             gameTimer.start();
         }
     }
@@ -111,17 +114,22 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     @Override
     public void actionPerformed(ActionEvent e) {
         if (currentGameTimeMs >= GAME_LENGTH_MS) {
-            marioController.pause();
-            toadController.pause();
-            gameTimer.stop();
             gameOverNotifier.notifyGameOver();
-            currentGameTimeMs = MarioChaseHelper.MARIO_START_AHEAD_MS;
         }
         else {
             currentGameTimeMs += CYCLE_INTERVAL_MS;
             marioController.executeCycle();
+
+            if (currentGameTimeMs == 0) {
+                toadController.updateMarioLocationAfterHeadstart(m1.getLocation());
+                toadController.resume();
+            }
+
             if (currentGameTimeMs >= 0) {
                 toadController.executeCycle();
+                if (toadController.checkWinCondition()) {
+                    gameOverNotifier.notifyGameOver();
+                }
             }
         }
 
@@ -130,6 +138,7 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
 
     @Override
     public void onGameOver() {
+        gameTimer.stop();
         marioController.pause();
         marioController.savePlayersAsIndividuals(currentGameTimeMs, GAME_LENGTH_MS);
         marioController.resetAndReloadPlayers();
@@ -138,7 +147,13 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
         toadController.savePlayersAsIndividuals(currentGameTimeMs, GAME_LENGTH_MS);
         toadController.resetAndReloadPlayers();
 
+        // TODO display stats for a few seconds before auto resuming
+        repaint();
+
+        currentGameTimeMs = MarioChaseHelper.MARIO_START_AHEAD_MS;
         marioController.resume();
         toadController.resume();
+        gameTimer.restart();
+
     }
 }
