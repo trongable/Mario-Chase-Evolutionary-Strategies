@@ -243,8 +243,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
 
     @Override
     public void saveAsIndividual(int generation, double totalTime, double remainingTime) {
-        double minCaughtDistance = 1;
-        if (currentDistanceFromMario < minCaughtDistance) {
+        if (currentDistanceFromMario < MarioChaseHelper.TOUCH_DISTANCE) {
             remainingTime = 0;
         }
 
@@ -291,7 +290,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
     @Override
     public void reset() {
         direction = MarioChaseHelper.TOAD_STARTING_DIRECTIONS[playerNumber];
-        location = MarioChaseHelper.TOAD_STARTING_LOCATIONS[playerNumber];
+        location = new Point(MarioChaseHelper.TOAD_STARTING_LOCATIONS[playerNumber].getX(), MarioChaseHelper.TOAD_STARTING_LOCATIONS[playerNumber].getY());
         currentDistanceFromMario = MarioChaseHelper.TOAD_STARTING_DISTANCE;
         lastDistanceFromMario = MarioChaseHelper.TOAD_STARTING_DISTANCE;
         totalDistanceFromMario = 0;

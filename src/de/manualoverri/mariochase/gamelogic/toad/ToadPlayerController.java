@@ -19,13 +19,14 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
 
     private List<ToadPlayer> players;
     private int generation;
-    private Point marioLocation;
+    private Point knownMarioLocation;
+    private Point guessedMarioLocation;
     private boolean running;
 
     public ToadPlayerController() {
         players = new ArrayList<ToadPlayer>();
         generation = 0;
-        marioLocation = null;
+        guessedMarioLocation = null;
         running = false;
     }
 
@@ -72,28 +73,28 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
             player.reset();
         }
 
-        marioLocation = null;
+        guessedMarioLocation = null;
     }
 
     @Override
     public void executeCycle() {
-        if (!running) {
-            return;
-        }
+        if (running) {
+            updatePlayerDistancesFromMario(knownMarioLocation);
+            guessedMarioLocation = getCurrentMarioLocation();
 
-        marioLocation = getCurrentMarioLocation();
-        setPlayerDirections();
+            setPlayerDirections();
 
-        for (ToadPlayer player : players) {
-            if (player.getCurrentDistanceFromMario() <= player.getDiveRange()) {
-                if (Math.random() > player.getDiveLikeliness()) {
-                    player.diveAndUpdateDistances(marioLocation);
+            for (ToadPlayer player : players) {
+                if (player.getCurrentDistanceFromMario() <= player.getDiveRange()) {
+                    if (Math.random() > player.getDiveLikeliness()) {
+                        player.diveAndUpdateDistances(guessedMarioLocation);
 
+                    } else {
+                        player.stepAndUpdateDistances(guessedMarioLocation);
+                    }
                 } else {
-                    player.stepAndUpdateDistances(marioLocation);
+                    player.stepAndUpdateDistances(guessedMarioLocation);
                 }
-            } else {
-                player.stepAndUpdateDistances(marioLocation);
             }
         }
     }
@@ -108,6 +109,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     /**
      * Finds Mario's location given 3 Toads with their current locations and their respective distances from Mario
      * Treats the first two Toads as circles. The two circles are guaranteed to intersect at at least 1 point where Mario is
+     * http://2000clicks.com/mathhelp/GeometryConicSectionCircleIntersection.aspx
      *
      * @return The best guess location of Mario as a Point
      */
@@ -124,13 +126,16 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
 
         double xA = a.getLocation().getX(), yA = a.getLocation().getY(), xB = b.getLocation().getX(), yB = b.getLocation().getY();
         double rA = a.getCurrentDistanceFromMario(), rB = b.getCurrentDistanceFromMario();
-        double dSq = Math.pow(a.getLocation().distanceFrom(b.getLocation()), 2);
-        double k = 0.25 * Math.sqrt((Math.pow(rA + rB, 2) - dSq) * (dSq - (Math.pow(rA - rB, 2))));
+        double distSq = Math.pow(a.getLocation().distanceFrom(b.getLocation()), 2);
+        double subArea1 = Math.abs((Math.pow(rA + rB, 2) - distSq));
+        double subArea2 = Math.abs((distSq - (Math.pow(rA - rB, 2))));
 
-        double xPlus = (0.5 * (xB + xA)) + (0.5 * (xB - xA) * (Math.pow(rA, 2) - Math.pow(rB, 2)) / dSq) + (2 * (yB - yA) * k / dSq);
-        double xMinus = (0.5 * (xB + xA)) + (0.5 * (xB - xA) * (Math.pow(rA, 2) - Math.pow(rB, 2)) / dSq) - (2 * (yB - yA) * k / dSq);
-        double yPlus = (0.5 * (yB + yA)) + (0.5 * (yB - yA) * (Math.pow(rA, 2) - Math.pow(rB, 2)) / dSq) + (2 * (xB - xA) * k / dSq);
-        double yMinus = (0.5 * (yB + yA)) + (0.5 * (yB - yA) * (Math.pow(rA, 2) - Math.pow(rB, 2)) / dSq) - (2 * (xB - xA) * k / dSq);
+        double k = 0.25 * Math.sqrt(subArea1 * subArea2);
+
+        double xPlus = (0.5 * (xB + xA)) + (0.5 * (xB - xA) * (Math.pow(rA, 2) - Math.pow(rB, 2)) / distSq) + (2 * (yB - yA) * k / distSq);
+        double xMinus = (0.5 * (xB + xA)) + (0.5 * (xB - xA) * (Math.pow(rA, 2) - Math.pow(rB, 2)) / distSq) - (2 * (yB - yA) * k / distSq);
+        double yPlus = (0.5 * (yB + yA)) + (0.5 * (yB - yA) * (Math.pow(rA, 2) - Math.pow(rB, 2)) / distSq) + (2 * (xB - xA) * k / distSq);
+        double yMinus = (0.5 * (yB + yA)) + (0.5 * (yB - yA) * (Math.pow(rA, 2) - Math.pow(rB, 2)) / distSq) - (2 * (xB - xA) * k / distSq);
 
         Point pointPlusPlus = new Point(xPlus, yPlus);
         Point pointPlusMinus = new Point(xPlus, yMinus);
@@ -173,16 +178,21 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     }
 
     public void updateMarioLocationAfterHeadstart(Point marioLocation) {
-        this.marioLocation = marioLocation;
+        this.knownMarioLocation = marioLocation;
+        updatePlayerDistancesFromMario(marioLocation);
+    }
+
+    public void updatePlayerDistancesFromMario(Point marioLocation) {
         for (ToadPlayer player : players) {
-            player.updateDistances(this.marioLocation);
+            player.updateDistances(marioLocation);
         }
     }
 
     public boolean checkWinCondition() {
         if (running) {
             for (ToadPlayer player : players) {
-                if (player.getCurrentDistanceFromMario() <= MarioChaseHelper.TOUCH_DISTANCE) {
+                if (player.getLocation().distanceFrom(knownMarioLocation) <= MarioChaseHelper.TOUCH_DISTANCE) {
+                    System.out.println(player);
                     return true;
                 }
             }

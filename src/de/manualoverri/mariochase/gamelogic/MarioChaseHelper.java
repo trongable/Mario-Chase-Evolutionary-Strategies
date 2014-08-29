@@ -16,7 +16,7 @@ public final class MarioChaseHelper {
     public static final int GAME_CENTER_Y = GAME_HEIGHT / 2;
     public static final int GAME_LENGTH_MS = (int) (20 * 1000);
     public static final int CYCLE_INTERVAL_MS = (int) (0.1 * 1000);
-    public static final int STEP_SIZE = 8;
+    public static final int STEP_SIZE = 5;
     public static final int PLAYER_SIZE = 10;
     public static final int TOUCH_DISTANCE = 5;
 
