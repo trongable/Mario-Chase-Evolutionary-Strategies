@@ -108,7 +108,6 @@ public class MarioPlayerImpl implements MarioPlayer {
     public void paintPlayer(Graphics g) {
         g.setColor(color);
         g.fillOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
-        g.setColor(Color.decode("0x000000"));
         g.drawOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
     }
 }

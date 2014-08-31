@@ -10,15 +10,15 @@ import java.util.Random;
  */
 public final class MarioChaseHelper {
 
-    public static final int GAME_WIDTH = 1024;
-    public static final int GAME_HEIGHT = 768;
+    public static final int GAME_WIDTH = 800;
+    public static final int GAME_HEIGHT = 600;
     public static final int GAME_CENTER_X = GAME_WIDTH / 2;
     public static final int GAME_CENTER_Y = GAME_HEIGHT / 2;
     public static final int GAME_LENGTH_MS = (int) (20 * 1000);
     public static final int CYCLE_INTERVAL_MS = (int) (0.1 * 1000);
     public static final int STEP_SIZE = 5;
     public static final int PLAYER_SIZE = 10;
-    public static final int TOUCH_DISTANCE = 5;
+    public static final int TOUCH_DISTANCE = 8;
 
     public static final int MARIO_STARTING_DIRECTION = 0;
     public static final Point MARIO_STARTING_LOCATION = new Point (GAME_CENTER_X, GAME_CENTER_Y);

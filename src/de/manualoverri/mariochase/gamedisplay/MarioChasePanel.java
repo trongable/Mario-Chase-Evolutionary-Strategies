@@ -93,18 +93,6 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
         g.drawString(String.format("Mario actual: %s", m1.getLocation()), 10, 50);
         g.drawString(String.format("Mario guess: %s", toadController.getCurrentMarioLocation()), 10, 80);
 
-        g.setColor(t1.getColor());
-        g.drawString(String.format("T1: %d", t1.getCurrentDistanceFromMario()), 10, 110);
-
-        g.setColor(t2.getColor());
-        g.drawString(String.format("T2: %d", t2.getCurrentDistanceFromMario()), 10, 140);
-
-        g.setColor(t3.getColor());
-        g.drawString(String.format("T3: %d", t3.getCurrentDistanceFromMario()), 10, 170);
-
-        g.setColor(t4.getColor());
-        g.drawString(String.format("T4: %d", t4.getCurrentDistanceFromMario()), 10, 200);
-
         m1.paintPlayer(g);
         t1.paintPlayer(g);
         t2.paintPlayer(g);
@@ -136,14 +124,15 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
             marioController.executeCycle();
 
             if (currentGameTimeMs == 0) {
-                toadController.updateMarioLocationAfterHeadstart(m1.getLocation());
+                toadController.setMarioLocation(m1.getLocation());
                 toadController.resume();
             }
 
             if (currentGameTimeMs >= 0) {
-                toadController.executeCycle();
                 if (toadController.checkWinCondition()) {
                     gameOverNotifier.notifyGameOver();
+                } else {
+                    toadController.executeCycle();
                 }
             }
         }

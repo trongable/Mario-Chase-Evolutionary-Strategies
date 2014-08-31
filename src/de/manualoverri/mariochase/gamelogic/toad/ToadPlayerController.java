@@ -19,7 +19,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
 
     private List<ToadPlayer> players;
     private int generation;
-    private Point knownMarioLocation;
+    private Point marioLocation;
     private Point guessedMarioLocation;
     private boolean running;
 
@@ -34,6 +34,9 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
         players.add(player);
     }
 
+    public void setMarioLocation(Point marioLocation) {
+        this.marioLocation = marioLocation;
+    }
     @Override
     public int getGeneration() {
         return generation;
@@ -79,7 +82,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     @Override
     public void executeCycle() {
         if (running) {
-            updatePlayerDistancesFromMario(knownMarioLocation);
+            updatePlayerDistancesFromMario(marioLocation);
             guessedMarioLocation = getCurrentMarioLocation();
 
             setPlayerDirections();
@@ -177,11 +180,6 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
         generation++;
     }
 
-    public void updateMarioLocationAfterHeadstart(Point marioLocation) {
-        this.knownMarioLocation = marioLocation;
-        updatePlayerDistancesFromMario(marioLocation);
-    }
-
     public void updatePlayerDistancesFromMario(Point marioLocation) {
         for (ToadPlayer player : players) {
             player.updateDistances(marioLocation);
@@ -191,7 +189,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     public boolean checkWinCondition() {
         if (running) {
             for (ToadPlayer player : players) {
-                if (player.getLocation().distanceFrom(knownMarioLocation) <= MarioChaseHelper.TOUCH_DISTANCE) {
+                if (player.getLocation().distanceFrom(marioLocation) <= MarioChaseHelper.TOUCH_DISTANCE) {
                     System.out.println(player);
                     return true;
                 }
