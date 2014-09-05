@@ -58,4 +58,5 @@ public interface ToadPlayer {
     public void markSelected();
 
     public void paintPlayer(Graphics g);
+
 }

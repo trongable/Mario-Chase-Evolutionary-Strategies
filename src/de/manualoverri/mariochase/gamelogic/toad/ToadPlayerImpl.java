@@ -309,9 +309,14 @@ public final class ToadPlayerImpl implements ToadPlayer {
     public void paintPlayer(Graphics g) {
         g.setColor(color);
         g.drawString(String.format("%d", currentDistanceFromMario), (int) location.getX() - 2, (int) location.getY() -2);
+        g.drawString(toString(), 10, 80 + (playerNumber * 20));
         g.fillOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
         g.setColor(Color.WHITE);
         g.drawOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
+    }
+
+    public String toString() {
+        return String.format("CAD: %.2f -- DR: %.2f -- DL: %.2f", checkAheadDistance, diveRange, diveLikeliness);
     }
 
     //endregion

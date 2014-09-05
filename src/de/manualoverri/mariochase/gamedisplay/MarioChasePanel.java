@@ -30,6 +30,7 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     public static final int CYCLE_INTERVAL_MS = MarioChaseHelper.CYCLE_INTERVAL_MS;
 
     private Timer gameTimer;
+    private int gameNumber;
     private int currentGameTimeMs = MarioChaseHelper.MARIO_START_AHEAD_MS;
     private MarioPlayerController marioController;
     private ToadPlayerController toadController;
@@ -49,6 +50,7 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
         DbHelper.executeUpdate("delete from lu_toad_individual");
 
         gameTimer = new Timer(CYCLE_INTERVAL_MS, this);
+        gameNumber = 1;
         marioController = new MarioPlayerController();
         toadController = new ToadPlayerController();
 
@@ -90,8 +92,11 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
             g.drawString(String.format("Head start time remaining: %.1f", -currentGameTimeMs / 1000.0), 10, 20);
         }
 
-        g.drawString(String.format("Mario actual: %s", m1.getLocation()), 10, 50);
-        g.drawString(String.format("Mario guess: %s", toadController.getCurrentMarioLocation()), 10, 80);
+        g.drawString(String.format("Mario actual: %s", m1.getLocation()), 10, 40);
+        g.drawString(String.format("Mario guess: %s", toadController.getCurrentMarioLocation()), 10, 60);
+        g.drawString(String.format("Game number: %d", gameNumber), 650, 20);
+        g.drawString(String.format("Mario generation: %d", marioController.getGeneration()), 650, 40);
+        g.drawString(String.format("Toad generation: %d", toadController.getGeneration()), 650, 60);
 
         m1.paintPlayer(g);
         t1.paintPlayer(g);
@@ -157,6 +162,7 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
         currentGameTimeMs = MarioChaseHelper.MARIO_START_AHEAD_MS;
         marioController.resume();
         toadController.resume();
+        gameNumber++;
         gameTimer.restart();
 
     }
