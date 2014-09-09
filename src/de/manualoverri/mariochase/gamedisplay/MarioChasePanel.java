@@ -147,13 +147,14 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
 
     @Override
     public void onGameOver() {
+        System.out.println("Game " + gameNumber + " over");
         gameTimer.stop();
         marioController.pause();
-        marioController.savePlayersAsIndividuals(currentGameTimeMs, GAME_LENGTH_MS);
+        marioController.savePlayersAsIndividuals(currentGameTimeMs, GAME_LENGTH_MS - currentGameTimeMs);
         marioController.resetAndReloadPlayers();
 
         toadController.pause();
-        toadController.savePlayersAsIndividuals(currentGameTimeMs, GAME_LENGTH_MS);
+        toadController.savePlayersAsIndividuals(currentGameTimeMs, GAME_LENGTH_MS - currentGameTimeMs);
         toadController.resetAndReloadPlayers();
 
         // TODO display stats for a few seconds before auto resuming

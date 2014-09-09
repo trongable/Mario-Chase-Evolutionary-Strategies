@@ -222,8 +222,12 @@ public final class ToadPlayerImpl implements ToadPlayer {
     }
 
     @Override
-    public double getAverageDistanceFromMario(double time) {
-        return totalDistanceFromMario / time;
+    public double getAverageDistanceFromMario(double totalTime) {
+        if (totalTime == 0) {
+            return 0;
+        }
+
+        return totalDistanceFromMario / totalTime;
     }
 
     @Override
@@ -232,8 +236,12 @@ public final class ToadPlayerImpl implements ToadPlayer {
     }
 
     @Override
-    public double getAverageClosingRate(double time) {
-        return totalClosingRate / time;
+    public double getAverageClosingRate(double totalTime) {
+        if (totalTime == 0) {
+            return 0;
+        }
+
+        return totalClosingRate / totalTime;
     }
 
     @Override
@@ -246,6 +254,18 @@ public final class ToadPlayerImpl implements ToadPlayer {
         if (currentDistanceFromMario < MarioChaseHelper.TOUCH_DISTANCE) {
             remainingTime = 0;
         }
+
+        System.out.println(String.format("G: %d, CAD: %f, DR: %f, DL: %f, RT: %f, CDFM: %d, ADFM: %f, MCR: %f, ACR: %f, VCC: %d",
+                generation,
+                checkAheadDistance,
+                diveRange,
+                diveLikeliness,
+                remainingTime,
+                currentDistanceFromMario,
+                getAverageDistanceFromMario(totalTime),
+                maxClosingRate,
+                getAverageClosingRate(totalTime),
+                veryCloseCycles));
 
         String sql = String.format("INSERT INTO lu_toad_individual" +
                         " (generation, check_ahead_distance, dive_range, dive_likeliness, remaining_time, remaining_distance," +
@@ -308,7 +328,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
     @Override
     public void paintPlayer(Graphics g) {
         g.setColor(color);
-        g.drawString(String.format("%d", currentDistanceFromMario), (int) location.getX() - 2, (int) location.getY() -2);
+        g.drawString(String.format("%d", currentDistanceFromMario), (int) location.getX() - 2, (int) location.getY() - 2);
         g.drawString(toString(), 10, 80 + (playerNumber * 20));
         g.fillOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
         g.setColor(Color.WHITE);

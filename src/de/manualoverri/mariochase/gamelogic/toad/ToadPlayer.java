@@ -41,11 +41,11 @@ public interface ToadPlayer {
 
     public int getCurrentDistanceFromMario();
 
-    public double getAverageDistanceFromMario(double time);
+    public double getAverageDistanceFromMario(double totalTime);
 
     public double getMaxClosingRate();
 
-    public double getAverageClosingRate(double time);
+    public double getAverageClosingRate(double totalTime);
 
     public int getVeryCloseCycles();
 

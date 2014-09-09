@@ -61,12 +61,12 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
 
     @Override
     public void resetAndReloadPlayers() {
-        String sql = "SELECT COUNT(*) from lu_toad_player where selected=0";
+        String sql = "SELECT COUNT(*) from lu_toad_individual where generation=" + generation;
         int currentPopulationSize = DbHelper.getScalar(sql);
 
         if (currentPopulationSize >= ESHelper.POPULATION_SIZE) {
             Population population = PopulationImpl.getFromPlayerTypeAndGeneration(MarioChasePlayerType.TOAD, generation);
-            population.evolveMuPlusLambda(5, 20, 1, 0.1);
+            population.evolveMuPlusLambda(4, 12, 1, 0.1);
             population.saveIndividualsAsPlayersInDb();
             onEvolutionComplete();
         }
@@ -177,6 +177,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
 
     @Override
     public void onEvolutionComplete() {
+        System.out.println("Generation: " + generation + " complete");
         generation++;
     }
 
