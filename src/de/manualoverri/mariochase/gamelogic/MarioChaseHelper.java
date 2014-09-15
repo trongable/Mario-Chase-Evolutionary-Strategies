@@ -41,10 +41,10 @@ public final class MarioChaseHelper {
     public static final double MAX_DIVE_LIKELINESS = 1;
     public static final double MIN_DIVE_LIKELINESS = 0;
 
-    private static Random r = new Random();
+    public static Random random = new Random(System.currentTimeMillis());
 
     public static double randDouble(double min, double max) {
-        return min + (max - min) * r.nextDouble();
+        return min + (max - min) * random.nextDouble();
     }
 
     public MarioChaseHelper() {

@@ -55,7 +55,7 @@ public interface ToadPlayer {
 
     public void reset();
 
-    public void markSelected();
+    public void markPlayerAsSelected();
 
     public void paintPlayer(Graphics g);
 

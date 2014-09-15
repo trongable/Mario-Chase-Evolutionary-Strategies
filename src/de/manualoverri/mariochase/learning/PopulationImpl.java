@@ -141,6 +141,7 @@ public class PopulationImpl implements Population {
 
     @Override
     public void saveIndividualsAsPlayersInDb() {
+        Collections.shuffle(population); // Making sure we don't skew the game to be all parents/all children
         for (Individual individual : population) {
             individual.saveAsPlayerInDb();
         }

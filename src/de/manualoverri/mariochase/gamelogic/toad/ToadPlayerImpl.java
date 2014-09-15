@@ -299,7 +299,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
                     checkAheadDistance = toadRow.getDouble("check_ahead_distance");
                     diveRange = toadRow.getDouble("dive_range");
                     diveLikeliness = toadRow.getDouble("dive_likeliness");
-                    markSelected();
+                    markPlayerAsSelected();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -321,7 +321,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
     }
 
     @Override
-    public void markSelected() {
+    public void markPlayerAsSelected() {
         DbHelper.executeUpdate("update lu_toad_player set selected=1 where id=" + id);
     }
 

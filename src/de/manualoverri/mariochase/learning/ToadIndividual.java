@@ -1,5 +1,7 @@
 package de.manualoverri.mariochase.learning;
 
+import de.manualoverri.mariochase.gamelogic.MarioChaseHelper;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -22,9 +24,6 @@ public class ToadIndividual implements Individual {
     private int veryCloseCycles;
     private double fitnessScore;
 
-    private double nexGaussian;
-    private boolean hasNextGaussian;
-
     public static Individual getFromRow(ResultSet row) throws SQLException {
         ToadIndividual retval = new ToadIndividual();
 
@@ -43,7 +42,7 @@ public class ToadIndividual implements Individual {
     }
 
     private ToadIndividual() {
-        // Do nothing
+        // do nothing
     }
 
     @Override
@@ -67,42 +66,47 @@ public class ToadIndividual implements Individual {
     @Override
     public Individual mutateNondestructive(double mean, double variance) {
         ToadIndividual copy = new ToadIndividual();
+
         copy.generation = this.generation;
         copy.checkAheadDistance = this.checkAheadDistance;
         copy.diveRange = this.diveRange;
         copy.diveLikeliness = this.diveLikeliness;
         copy.mutateDestructive(mean, variance);
+
         return copy;
     }
 
     @Override
     public void mutateDestructive(double mean, double variance) {
         // Algorithm 11
+        double oldCAD = checkAheadDistance;
+        checkAheadDistance = convolveValue(checkAheadDistance, MarioChaseHelper.MIN_CHECK_AHEAD_DISTANCE, MarioChaseHelper.MAX_CHECK_AHEAD_DISTANCE, mean, variance);
+
+        if (oldCAD == checkAheadDistance) {
+            System.err.println("PROBLEM" + checkAheadDistance);
+        }
+        diveRange = convolveValue(diveRange, MarioChaseHelper.MIN_DIVE_RANGE, MarioChaseHelper.MAX_DIVE_RANGE, mean, variance);
+        diveLikeliness = convolveValue(diveLikeliness, MarioChaseHelper.MIN_DIVE_LIKELINESS, MarioChaseHelper.MAX_DIVE_LIKELINESS, mean, variance);
     }
 
     @Override
-    /***
-     * Using Wikipedia implementation for Marsaglia polar method
-     */
     public double generateGaussianRandom(double mean, double variance) {
-        double u, v, s;
-
-        if (hasNextGaussian) {
-            hasNextGaussian = false;
-            return nexGaussian;
+        if (variance < 0) {
+            throw new IllegalArgumentException("Variance should be > 0, variance=" + variance);
         }
 
-        do {
-            u = Math.random() * 2 - 1;
-            v = Math.random() * 2 - 1;
-            s = (u * u) + (v * v);
-        } while (s >= 1 || s == 0);
+        return mean + (Math.sqrt(variance) * MarioChaseHelper.random.nextGaussian());
+    }
 
-        double muller = Math.sqrt(-2.0 * Math.log(s) / s);
-        nexGaussian = v * muller;
-        hasNextGaussian = true;
+    @Override
+    public double convolveValue(double value, double min, double max, double mean, double variance) {
+        double newValue = value + generateGaussianRandom(mean, variance);
 
-        return mean + variance * u * muller;
+        while (newValue < min || newValue > max) {
+            newValue = value + generateGaussianRandom(mean, variance);
+        }
+
+        return newValue;
     }
 
     @Override

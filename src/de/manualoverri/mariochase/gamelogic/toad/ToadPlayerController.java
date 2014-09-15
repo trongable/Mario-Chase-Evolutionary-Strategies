@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 7/28/2014
  * Time: 9:05 PM
  */
-public class ToadPlayerController implements MarioChasePlayerController, EvolutionCompleteListener {
+public class ToadPlayerController implements MarioChasePlayerController {
 
     private List<ToadPlayer> players;
     private int generation;
@@ -66,9 +66,10 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
 
         if (currentPopulationSize >= ESHelper.POPULATION_SIZE) {
             Population population = PopulationImpl.getFromPlayerTypeAndGeneration(MarioChasePlayerType.TOAD, generation);
-            population.evolveMuPlusLambda(4, 12, 1, 0.1);
+            population.evolveMuPlusLambda(ESHelper.NUM_PARENTS, ESHelper.NUM_CHILDREN, ESHelper.MEAN, ESHelper.MUTATION_RATE);
             population.saveIndividualsAsPlayersInDb();
-            onEvolutionComplete();
+            System.out.println("Generation: " + generation + " complete");
+            generation++;
         }
 
         for (ToadPlayer player : players) {
@@ -173,12 +174,6 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
         }
 
         return min;
-    }
-
-    @Override
-    public void onEvolutionComplete() {
-        System.out.println("Generation: " + generation + " complete");
-        generation++;
     }
 
     public void updatePlayerDistancesFromMario(Point marioLocation) {

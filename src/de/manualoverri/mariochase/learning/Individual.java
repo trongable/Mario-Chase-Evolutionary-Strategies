@@ -19,6 +19,8 @@ public interface Individual {
 
     public double generateGaussianRandom(double mean, double variance);
 
+    public double convolveValue(double value, double min, double max, double mean, double variance);
+
     public void saveAsPlayerInDb();
 
 }
