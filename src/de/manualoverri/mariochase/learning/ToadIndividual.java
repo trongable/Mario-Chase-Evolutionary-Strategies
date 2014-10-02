@@ -12,6 +12,7 @@ import java.sql.SQLException;
  */
 public class ToadIndividual implements Individual {
 
+    private int id;
     private int generation;
     private double checkAheadDistance;
     private double diveRange;
@@ -27,6 +28,7 @@ public class ToadIndividual implements Individual {
     public static Individual getFromRow(ResultSet row) throws SQLException {
         ToadIndividual retval = new ToadIndividual();
 
+        retval.id = row.getInt("id");
         retval.generation = row.getInt("generation");
         retval.checkAheadDistance = row.getDouble("check_ahead_distance");
         retval.diveRange = row.getDouble("dive_range");
@@ -52,13 +54,15 @@ public class ToadIndividual implements Individual {
 
     @Override
     public double evaulateFitness() {
-        fitnessScore = (remainingTime * 1) +
-                (remainingDistance * 1) +
+        fitnessScore = (remainingTime * 0.01) +
+                (remainingDistance * 0.01) +
                 (averageDistance * 1) +
-                (averageClosingRate * 1) +
                 (maxClosingRate * 1) +
-                (averageClosingRate * 1) +
+                (averageClosingRate * 100) +
                 (veryCloseCycles * 1);
+
+        String sql = "UPDATE lu_toad_individual SET fitness=" + fitnessScore + " where id=" + id;
+        DbHelper.executeUpdate(sql);
 
         return fitnessScore;
     }

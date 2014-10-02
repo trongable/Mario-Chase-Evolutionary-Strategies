@@ -1,5 +1,7 @@
 package de.manualoverri.mariochase.gamedisplay;
 
+import de.manualoverri.mariochase.events.GameOverListener;
+import de.manualoverri.mariochase.events.Notifier;
 import de.manualoverri.mariochase.gamelogic.*;
 import de.manualoverri.mariochase.gamelogic.mario.MarioPlayer;
 import de.manualoverri.mariochase.gamelogic.mario.MarioPlayerController;
@@ -36,7 +38,6 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     private ToadPlayerController toadController;
     private MarioPlayer m1 = null;
     private ToadPlayer t1, t2, t3, t4;
-    private GameOverNotifier gameOverNotifier;
 
     public MarioChasePanel() {
         super();
@@ -53,6 +54,9 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
         gameNumber = 1;
         marioController = new MarioPlayerController();
         toadController = new ToadPlayerController();
+        Notifier.evolutionCompleteNotifier.addListener(toadController);
+        Notifier.gameOverNotifier.addListener(this);
+
 
         try {
             m1 = MarioPlayerImpl.getInstance();
@@ -69,8 +73,7 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
             e.printStackTrace();
         }
 
-        gameOverNotifier = new GameOverNotifier();
-        gameOverNotifier.addListener(this);
+
     }
 
     @Override
@@ -122,7 +125,7 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     @Override
     public void actionPerformed(ActionEvent e) {
         if (currentGameTimeMs >= GAME_LENGTH_MS) {
-            gameOverNotifier.notifyGameOver();
+            Notifier.gameOverNotifier.notifyGameOver();
         }
         else {
             currentGameTimeMs += CYCLE_INTERVAL_MS;
@@ -135,7 +138,7 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
 
             if (currentGameTimeMs >= 0) {
                 if (toadController.checkWinCondition()) {
-                    gameOverNotifier.notifyGameOver();
+                    Notifier.gameOverNotifier.notifyGameOver();
                 } else {
                     toadController.executeCycle();
                 }
@@ -147,14 +150,15 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
 
     @Override
     public void onGameOver() {
+        // We have to convert time back to seconds before saving individuals
         System.out.println("Game " + gameNumber + " over");
         gameTimer.stop();
         marioController.pause();
-        marioController.savePlayersAsIndividuals(currentGameTimeMs, GAME_LENGTH_MS - currentGameTimeMs);
+        marioController.savePlayersAsIndividuals(currentGameTimeMs * 0.001, (GAME_LENGTH_MS - currentGameTimeMs) * 0.001);
         marioController.resetAndReloadPlayers();
 
         toadController.pause();
-        toadController.savePlayersAsIndividuals(currentGameTimeMs, GAME_LENGTH_MS - currentGameTimeMs);
+        toadController.savePlayersAsIndividuals(currentGameTimeMs * 0.001, (GAME_LENGTH_MS - currentGameTimeMs) * 0.001);
         toadController.resetAndReloadPlayers();
 
         // TODO display stats for a few seconds before auto resuming

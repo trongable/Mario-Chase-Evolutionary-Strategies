@@ -1,5 +1,7 @@
 package de.manualoverri.mariochase.learning;
 
+import de.manualoverri.mariochase.events.EvolutionCompleteListener;
+
 import java.util.List;
 
 /**

@@ -1,6 +1,4 @@
-package de.manualoverri.mariochase.gamedisplay;
-
-import org.w3c.dom.events.Event;
+package de.manualoverri.mariochase.events;
 
 import java.util.List;
 import java.util.ArrayList;

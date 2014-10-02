@@ -1,5 +1,7 @@
 package de.manualoverri.mariochase.learning;
 
+import de.manualoverri.mariochase.events.EvolutionCompleteListener;
+import de.manualoverri.mariochase.events.Notifier;
 import de.manualoverri.mariochase.gamelogic.MarioChasePlayerType;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -18,6 +20,13 @@ public class PopulationImpl implements Population {
     private List<Individual> population;
     private List<EvolutionCompleteListener> listeners;
     private MarioChasePlayerType playerType;
+
+    public static void doEvolution(MarioChasePlayerType playerType, int generation) {
+        Population population = PopulationImpl.getFromPlayerTypeAndGeneration(playerType, generation);
+        population.evolveMuPlusLambda(ESHelper.NUM_PARENTS, ESHelper.NUM_CHILDREN, ESHelper.MEAN, ESHelper.MUTATION_RATE);
+        population.saveIndividualsAsPlayersInDb();
+        Notifier.evolutionCompleteNotifier.notifyEvolutionComplete();
+    }
 
     public static Population getFromPlayerTypeAndGeneration(MarioChasePlayerType playerType, int generation) {
         ResultSet rs;

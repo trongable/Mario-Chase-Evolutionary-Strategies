@@ -1,4 +1,4 @@
-package de.manualoverri.mariochase.learning;
+package de.manualoverri.mariochase.events;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ import java.util.List;
  * Created by tnguyen on 8/7/2014.
  */
 public class EvolutionCompleteNotifier {
+
     private List<EvolutionCompleteListener> listeners = new ArrayList<EvolutionCompleteListener>();
 
     public void addListener(EvolutionCompleteListener listener) {

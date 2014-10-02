@@ -1,5 +1,6 @@
 package de.manualoverri.mariochase.gamelogic.toad;
 
+import de.manualoverri.mariochase.events.EvolutionCompleteListener;
 import de.manualoverri.mariochase.gamelogic.MarioChaseHelper;
 import de.manualoverri.mariochase.gamelogic.MarioChasePlayerController;
 import de.manualoverri.mariochase.gamelogic.MarioChasePlayerType;
@@ -15,18 +16,20 @@ import java.util.List;
  * Date: 7/28/2014
  * Time: 9:05 PM
  */
-public class ToadPlayerController implements MarioChasePlayerController {
+public class ToadPlayerController implements MarioChasePlayerController, EvolutionCompleteListener {
 
     private List<ToadPlayer> players;
     private int generation;
     private Point marioLocation;
-    private Point guessedMarioLocation;
+    private Point lastGuessedMarioLocation;
+    private Point currentGuessedMarioLocation;
     private boolean running;
 
     public ToadPlayerController() {
         players = new ArrayList<ToadPlayer>();
         generation = 0;
-        guessedMarioLocation = null;
+        lastGuessedMarioLocation = null;
+        currentGuessedMarioLocation = null;
         running = false;
     }
 
@@ -65,11 +68,7 @@ public class ToadPlayerController implements MarioChasePlayerController {
         int currentPopulationSize = DbHelper.getScalar(sql);
 
         if (currentPopulationSize >= ESHelper.POPULATION_SIZE) {
-            Population population = PopulationImpl.getFromPlayerTypeAndGeneration(MarioChasePlayerType.TOAD, generation);
-            population.evolveMuPlusLambda(ESHelper.NUM_PARENTS, ESHelper.NUM_CHILDREN, ESHelper.MEAN, ESHelper.MUTATION_RATE);
-            population.saveIndividualsAsPlayersInDb();
-            System.out.println("Generation: " + generation + " complete");
-            generation++;
+            PopulationImpl.doEvolution(MarioChasePlayerType.TOAD, generation);
         }
 
         for (ToadPlayer player : players) {
@@ -77,27 +76,31 @@ public class ToadPlayerController implements MarioChasePlayerController {
             player.reset();
         }
 
-        guessedMarioLocation = null;
+        lastGuessedMarioLocation = null;
+        currentGuessedMarioLocation = null;
     }
 
     @Override
     public void executeCycle() {
         if (running) {
             updatePlayerDistancesFromMario(marioLocation);
-            guessedMarioLocation = getCurrentMarioLocation();
+            if (currentGuessedMarioLocation != null) {
+                lastGuessedMarioLocation = new Point(currentGuessedMarioLocation.getX(), currentGuessedMarioLocation.getX());
+            }
+            currentGuessedMarioLocation = getCurrentMarioLocation();
 
             setPlayerDirections();
 
             for (ToadPlayer player : players) {
                 if (player.getCurrentDistanceFromMario() <= player.getDiveRange()) {
                     if (Math.random() > player.getDiveLikeliness()) {
-                        player.diveAndUpdateDistances(guessedMarioLocation);
+                        player.diveAndUpdateDistances(currentGuessedMarioLocation);
 
                     } else {
-                        player.stepAndUpdateDistances(guessedMarioLocation);
+                        player.stepAndUpdateDistances(currentGuessedMarioLocation);
                     }
                 } else {
-                    player.stepAndUpdateDistances(guessedMarioLocation);
+                    player.stepAndUpdateDistances(currentGuessedMarioLocation);
                 }
             }
         }
@@ -105,9 +108,19 @@ public class ToadPlayerController implements MarioChasePlayerController {
 
     @Override
     public void setPlayerDirections() {
-        for (ToadPlayer player : players) {
-            player.setDirection((int) (Math.random() * 360));
+        if (lastGuessedMarioLocation != null) {
+            double projectedMarioPathSlope = lastGuessedMarioLocation.getSlope(currentGuessedMarioLocation);
+
+            for (ToadPlayer player : players) {
+                Point marioCheckAheadPoint = Point.getPointWithSlopeAndDistance(projectedMarioPathSlope, player.getCheckAheadDistance());
+                player.setDirection((int) player.getLocation().getDegreesTo(marioCheckAheadPoint));
+            }
+        } else {
+            for (ToadPlayer player : players) {
+                player.setDirection((int)(Math.random() * 360));
+            }
         }
+
     }
 
     /**
@@ -193,5 +206,11 @@ public class ToadPlayerController implements MarioChasePlayerController {
         }
 
         return false;
+    }
+
+    @Override
+    public void onEvolutionComplete() {
+        System.out.println("Generation: " + generation + " complete");
+        generation++;
     }
 }

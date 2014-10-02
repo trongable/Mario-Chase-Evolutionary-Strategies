@@ -1,4 +1,4 @@
-package de.manualoverri.mariochase.gamedisplay;
+package de.manualoverri.mariochase.events;
 
 /**
  * User: Trong

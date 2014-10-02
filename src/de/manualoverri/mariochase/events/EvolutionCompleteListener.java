@@ -1,4 +1,4 @@
-package de.manualoverri.mariochase.learning;
+package de.manualoverri.mariochase.events;
 
 /**
  * Created by tnguyen on 8/7/2014.

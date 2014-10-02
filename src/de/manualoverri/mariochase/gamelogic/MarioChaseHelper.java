@@ -37,7 +37,7 @@ public final class MarioChaseHelper {
     public static final double MAX_CHECK_AHEAD_DISTANCE = 1000;
     public static final double MIN_CHECK_AHEAD_DISTANCE = -1000;
     public static final double MAX_DIVE_RANGE = 500;
-    public static final double MIN_DIVE_RANGE = -500;
+    public static final double MIN_DIVE_RANGE = 0;
     public static final double MAX_DIVE_LIKELINESS = 1;
     public static final double MIN_DIVE_LIKELINESS = 0;
 

@@ -43,6 +43,21 @@ public class Point {
         return Math.sqrt(Math.pow(point.x - this.x, 2) + Math.pow(point.y - this.y, 2));
     }
 
+    public double getSlope(Point point) {
+        return (point.getY() - this.y) / (point.getX() - this.x);
+    }
+
+    public double getDegreesTo(Point point) {
+        return Math.toDegrees(Math.atan(this.getSlope(point))) % 360;
+    }
+
+    public static Point getPointWithSlopeAndDistance(double slope, double distance) {
+        double newX = distance * Math.cos(Math.atan(slope));
+        double newY = distance * Math.sin(Math.atan(slope));
+
+        return new Point(newX, newY);
+    }
+
     @Override
     public String toString() {
         return String.format("(%f, %f)", x, y);

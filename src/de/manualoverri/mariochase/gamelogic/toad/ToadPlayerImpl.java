@@ -227,7 +227,8 @@ public final class ToadPlayerImpl implements ToadPlayer {
             return 0;
         }
 
-        return totalDistanceFromMario / totalTime;
+        // We sample at every 10th of a second
+        return totalDistanceFromMario / (totalTime * 10);
     }
 
     @Override
@@ -241,7 +242,8 @@ public final class ToadPlayerImpl implements ToadPlayer {
             return 0;
         }
 
-        return totalClosingRate / totalTime;
+        // We sample at every 10th of a second
+        return totalClosingRate / (totalTime * 10);
     }
 
     @Override

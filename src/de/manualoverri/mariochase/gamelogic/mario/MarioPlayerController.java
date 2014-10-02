@@ -1,12 +1,7 @@
 package de.manualoverri.mariochase.gamelogic.mario;
 
 import de.manualoverri.mariochase.gamelogic.MarioChasePlayerController;
-import de.manualoverri.mariochase.gamelogic.Point;
-import de.manualoverri.mariochase.gamelogic.toad.ToadPlayer;
-import de.manualoverri.mariochase.learning.EvolutionCompleteListener;
-
-import java.util.ArrayList;
-import java.util.List;
+import de.manualoverri.mariochase.events.EvolutionCompleteListener;
 
 /**
  * User: Trong
