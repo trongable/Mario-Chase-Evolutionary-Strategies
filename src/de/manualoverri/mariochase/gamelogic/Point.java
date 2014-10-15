@@ -44,6 +44,10 @@ public class Point {
     }
 
     public double getSlope(Point point) {
+        if (point.getX() - this.x == 0) {
+            return Double.NaN;
+        }
+
         return (point.getY() - this.y) / (point.getX() - this.x);
     }
 
@@ -51,9 +55,13 @@ public class Point {
         return Math.toDegrees(Math.atan(this.getSlope(point))) % 360;
     }
 
-    public static Point getPointWithSlopeAndDistance(double slope, double distance) {
-        double newX = distance * Math.cos(Math.atan(slope));
-        double newY = distance * Math.sin(Math.atan(slope));
+    public Point getPointWithSlopeAndDistance(double slope, double distance) {
+        if (slope == Double.NaN) {
+
+        }
+
+        double newX = distance * Math.cos(Math.atan(slope)) + this.x;
+        double newY = distance * Math.sin(Math.atan(slope)) + this.y;
 
         return new Point(newX, newY);
     }

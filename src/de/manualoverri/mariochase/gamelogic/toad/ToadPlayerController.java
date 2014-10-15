@@ -112,7 +112,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
             double projectedMarioPathSlope = lastGuessedMarioLocation.getSlope(currentGuessedMarioLocation);
 
             for (ToadPlayer player : players) {
-                Point marioCheckAheadPoint = Point.getPointWithSlopeAndDistance(projectedMarioPathSlope, player.getCheckAheadDistance());
+                Point marioCheckAheadPoint = player.getLocation().getPointWithSlopeAndDistance(projectedMarioPathSlope, player.getCheckAheadDistance());
                 player.setDirection((int) player.getLocation().getDegreesTo(marioCheckAheadPoint));
             }
         } else {

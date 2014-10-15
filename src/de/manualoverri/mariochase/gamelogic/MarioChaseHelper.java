@@ -34,8 +34,8 @@ public final class MarioChaseHelper {
             new Point(GAME_CENTER_X - TOAD_STARTING_DISTANCE, GAME_CENTER_Y)};
     public static final Color[] TOAD_PLAYER_COLORS = {Color.decode("0xCF4647"), Color.decode("0x49D6FC"), Color.decode("0x51B594"), Color.decode("0xFFDB63")};
 
-    public static final double MAX_CHECK_AHEAD_DISTANCE = 1000;
-    public static final double MIN_CHECK_AHEAD_DISTANCE = -1000;
+    public static final double MAX_CHECK_AHEAD_DISTANCE = 500;
+    public static final double MIN_CHECK_AHEAD_DISTANCE = -500;
     public static final double MAX_DIVE_RANGE = 500;
     public static final double MIN_DIVE_RANGE = 0;
     public static final double MAX_DIVE_LIKELINESS = 1;

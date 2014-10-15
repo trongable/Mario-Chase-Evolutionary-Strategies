@@ -21,6 +21,30 @@ public class PointTest {
     }
 
     @Test
+    public void testGetSlope() {
+        Point p1 = new Point(0, 0);
+        Point p2 = new Point(1, 0);
+        Point p3 = new Point(0, 1);
+        Point p4 = new Point(-1, 0);
+        Point p5 = new Point(0, -1);
+
+        assertTrue(p1.getSlope(p2) == 0);
+        //assertTrue(p1.getSlope(p3) == Double.NaN);
+        assertTrue(p1.getSlope(p4) == 0);
+        //assertTrue(p1.getSlope(p5) == Double.NaN);
+    }
+
+    @Test
+    public void testGetDegreesTo() {
+
+    }
+
+    @Test
+    public void testGetPointWithSlopeAndDistance() {
+
+    }
+
+    @Test
     public void testEqualsWithPrecision() throws Exception {
         double precision = 5;
 
