@@ -1,7 +1,8 @@
 package de.manualoverri.mariochase.gamelogic.mario;
 
-import java.awt.*;
 import de.manualoverri.mariochase.gamelogic.Point;
+
+import java.awt.*;
 
 /**
  * User: Trong

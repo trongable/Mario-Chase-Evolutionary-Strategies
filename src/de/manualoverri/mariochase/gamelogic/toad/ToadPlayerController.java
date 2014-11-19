@@ -5,7 +5,9 @@ import de.manualoverri.mariochase.gamelogic.MarioChaseHelper;
 import de.manualoverri.mariochase.gamelogic.MarioChasePlayerController;
 import de.manualoverri.mariochase.gamelogic.MarioChasePlayerType;
 import de.manualoverri.mariochase.gamelogic.Point;
-import de.manualoverri.mariochase.learning.*;
+import de.manualoverri.mariochase.learning.DbHelper;
+import de.manualoverri.mariochase.learning.ESHelper;
+import de.manualoverri.mariochase.learning.PopulationImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +42,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     public void setMarioLocation(Point marioLocation) {
         this.marioLocation = marioLocation;
     }
+
     @Override
     public int getGeneration() {
         return generation;
@@ -64,6 +67,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
 
     @Override
     public void resetAndReloadPlayers() {
+        // Do evolution once we've collected enough Toad data for a generation
         String sql = "SELECT COUNT(*) from lu_toad_individual where generation=" + generation;
         int currentPopulationSize = DbHelper.getScalar(sql);
 
@@ -84,18 +88,20 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     public void executeCycle() {
         if (running) {
             updatePlayerDistancesFromMario(marioLocation);
+
+            // Have the last guessed Mario location trail behind our current guessed Mario location (duh)
             if (currentGuessedMarioLocation != null) {
-                lastGuessedMarioLocation = new Point(currentGuessedMarioLocation.getX(), currentGuessedMarioLocation.getX());
+                lastGuessedMarioLocation = new Point(currentGuessedMarioLocation.getX(), currentGuessedMarioLocation.getY());
             }
             currentGuessedMarioLocation = getCurrentMarioLocation();
 
             setPlayerDirections();
 
+            // On each cycle, we choose whether or not we should dive or step based on the player's properties
             for (ToadPlayer player : players) {
                 if (player.getCurrentDistanceFromMario() <= player.getDiveRange()) {
                     if (Math.random() > player.getDiveLikeliness()) {
                         player.diveAndUpdateDistances(currentGuessedMarioLocation);
-
                     } else {
                         player.stepAndUpdateDistances(currentGuessedMarioLocation);
                     }
@@ -109,15 +115,17 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     @Override
     public void setPlayerDirections() {
         if (lastGuessedMarioLocation != null) {
-            double projectedMarioPathSlope = lastGuessedMarioLocation.getSlope(currentGuessedMarioLocation);
-
+            // Using Mario's guessed location, try to predict where he'll be using each individual player's properties
+            double projectedMarioPathSlope = currentGuessedMarioLocation.getSlope(lastGuessedMarioLocation);
+            // System.out.println("R: " + marioLocation + " C: " + currentGuessedMarioLocation + " L: " + lastGuessedMarioLocation);
+            // System.out.println("PMPS: " + projectedMarioPathSlope);
             for (ToadPlayer player : players) {
-                Point marioCheckAheadPoint = player.getLocation().getPointWithSlopeAndDistance(projectedMarioPathSlope, player.getCheckAheadDistance());
-                player.setDirection((int) player.getLocation().getDegreesTo(marioCheckAheadPoint));
+                player.updateCheckAheadPoint(currentGuessedMarioLocation, projectedMarioPathSlope);
+                player.setDirection((int) player.getLocation().getDegreesTo(player.getCheckAheadPoint()));
             }
         } else {
             for (ToadPlayer player : players) {
-                player.setDirection((int)(Math.random() * 360));
+                player.setDirection((int) (Math.random() * 360));
             }
         }
 
@@ -165,7 +173,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
         double minusMinusClosenessToC = Math.abs(pointMinusMinus.distanceFrom(c.getLocation()) - c.getCurrentDistanceFromMario());
 
         // Out of the four possible points where Mario could be, which one is is closest to the correct ?
-        double minCloseness = minClosness(plusPlusClosenessToC, plusMinusClosenessToC, minusPlusClosenessToC, minusMinusClosenessToC);
+        double minCloseness = minCloseness(plusPlusClosenessToC, plusMinusClosenessToC, minusPlusClosenessToC, minusMinusClosenessToC);
         if (minCloseness == plusPlusClosenessToC) {
             return pointPlusPlus;
         } else if (minCloseness == plusMinusClosenessToC) {
@@ -177,7 +185,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
         }
     }
 
-    private double minClosness(double... closenessMeasurements) {
+    private double minCloseness(double... closenessMeasurements) {
         double min = closenessMeasurements[0];
 
         for (int i = 1; i < closenessMeasurements.length; i++) {
@@ -196,6 +204,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
     }
 
     public boolean checkWinCondition() {
+        // We've won if someone is within the min distance required to win
         if (running) {
             for (ToadPlayer player : players) {
                 if (player.getLocation().distanceFrom(marioLocation) <= MarioChaseHelper.TOUCH_DISTANCE) {

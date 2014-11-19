@@ -29,6 +29,7 @@ public class PopulationImpl implements Population {
     }
 
     public static Population getFromPlayerTypeAndGeneration(MarioChasePlayerType playerType, int generation) {
+        // Load up a generation of a player type to do ES on
         ResultSet rs;
         if (playerType == MarioChasePlayerType.MARIO) {
             rs = DbHelper.executeQuery(String.format("select * from lu_mario_individual where generation=%d", generation));
@@ -86,16 +87,19 @@ public class PopulationImpl implements Population {
 
     @Override
     public Individual crossoverOnePoint(Individual a, Individual b) {
+        // Only needed for genetic algorithm
         return null;
     }
 
     @Override
     public Individual crossoverTwoPoint(Individual a, Individual b) {
+        // Only needed for genetic algorithm
         return null;
     }
 
     @Override
     public Individual crossoverUniform(Individual a, Individual b) {
+        // Only needed for genetic algorithm
         return null;
     }
 
@@ -124,16 +128,20 @@ public class PopulationImpl implements Population {
             throw new IllegalArgumentException("The number of children must be evenly divisible by the number of parents, c=" + numChildren + ", p=" + numParents);
         }
 
+        // Compute the fitness scores of the individuals
         evaluateFitnesses();
         Collections.sort(population, new IndividualComparator());
 
+        // Pick out the best parents to create the next generation
         List<Individual> nextGenerationParents = new ArrayList<Individual>(numParents + numChildren);
         List<Individual> nextGenerationPopulation = new ArrayList<Individual>(numParents + numChildren);
         for (int i = 0; i < numParents; i++) {
+            // TODO: Simulated annealing
             nextGenerationParents.add(population.get(i));
             nextGenerationPopulation.add(population.get(i));
         }
 
+        // Mutate (non-destructive) the parents to create children
         for (Individual individual : nextGenerationParents) {
             for (int i = 0; i < numChildren / numParents; i++) {
                 nextGenerationPopulation.add(individual.mutateNondestructive(mean, variance));

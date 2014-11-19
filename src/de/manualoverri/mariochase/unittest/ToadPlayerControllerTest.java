@@ -1,13 +1,13 @@
 package de.manualoverri.mariochase.unittest;
 
-import de.manualoverri.mariochase.gamelogic.*;
+import de.manualoverri.mariochase.gamelogic.Point;
 import de.manualoverri.mariochase.gamelogic.toad.ToadPlayer;
 import de.manualoverri.mariochase.gamelogic.toad.ToadPlayerController;
 import de.manualoverri.mariochase.gamelogic.toad.ToadPlayerImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class ToadPlayerControllerTest {
     ToadPlayerController toadPlayerController;

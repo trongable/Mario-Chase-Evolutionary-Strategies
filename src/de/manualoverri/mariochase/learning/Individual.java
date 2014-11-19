@@ -1,7 +1,5 @@
 package de.manualoverri.mariochase.learning;
 
-import de.manualoverri.mariochase.gamelogic.PlayerType;
-
 /**
  * User: Trong
  * Date: 7/20/2014

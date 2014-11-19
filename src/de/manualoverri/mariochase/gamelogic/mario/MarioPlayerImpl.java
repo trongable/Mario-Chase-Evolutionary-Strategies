@@ -1,6 +1,7 @@
 package de.manualoverri.mariochase.gamelogic.mario;
 
-import de.manualoverri.mariochase.gamelogic.*;
+import de.manualoverri.mariochase.gamelogic.MarioChaseHelper;
+import de.manualoverri.mariochase.gamelogic.PlayerCountException;
 import de.manualoverri.mariochase.gamelogic.Point;
 
 import java.awt.*;
@@ -15,7 +16,6 @@ public class MarioPlayerImpl implements MarioPlayer {
     private static int marioCount = 0;
     public final static int MAX_MAX_COUNT = 1;
 
-    private int playerId;
     private int direction;
     private de.manualoverri.mariochase.gamelogic.Point location;
     private Color color;
@@ -61,6 +61,7 @@ public class MarioPlayerImpl implements MarioPlayer {
 
     @Override
     public void step() {
+        // Step in the direction we are facing
         int xOffset = (int) (Math.cos(Math.toRadians(direction)) * MarioChaseHelper.STEP_SIZE);
         int yOffset = (int) (Math.sin(Math.toRadians(direction)) * MarioChaseHelper.STEP_SIZE);
 
@@ -75,7 +76,7 @@ public class MarioPlayerImpl implements MarioPlayer {
 
     @Override
     public void saveAsIndividual(int generation, double totalTime, double remainingTime) {
-
+        // TODO: Add brains to Mario
     }
 
     @Override

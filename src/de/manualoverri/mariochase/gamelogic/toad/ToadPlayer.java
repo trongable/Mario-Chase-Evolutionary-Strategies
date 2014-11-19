@@ -1,9 +1,10 @@
 package de.manualoverri.mariochase.gamelogic.toad;
 
 
+import de.manualoverri.mariochase.gamelogic.Point;
 
 import java.awt.*;
-import de.manualoverri.mariochase.gamelogic.Point;
+
 /**
  * User: Trong
  * Date: 7/20/2014
@@ -24,6 +25,10 @@ public interface ToadPlayer {
     public double getCheckAheadDistance();
 
     public void setCheckAheadDistance(double checkAheadDistance);
+
+    public Point getCheckAheadPoint();
+
+    public void updateCheckAheadPoint(Point marioLocation, double projectedMarioPathSlope);
 
     public double getDiveRange();
 

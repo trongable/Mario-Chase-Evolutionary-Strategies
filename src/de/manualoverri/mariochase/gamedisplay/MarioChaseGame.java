@@ -9,6 +9,11 @@ import javax.swing.*;
  */
 public class MarioChaseGame {
 
+    /**
+     * Launches the game window
+     *
+     * @param args Unused arguments to launch the game
+     */
     public static void main(String args[]) {
         JFrame window = new JFrame("Mario Chase Learning with Evolutionary Strategies");
         MarioChasePanel game = new MarioChasePanel();

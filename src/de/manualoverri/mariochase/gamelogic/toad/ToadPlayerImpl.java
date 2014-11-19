@@ -20,6 +20,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
 
     private int id;
     private double checkAheadDistance;
+    private Point checkAheadPoint;
     private double diveRange;
     private double diveLikeliness;
 
@@ -117,6 +118,18 @@ public final class ToadPlayerImpl implements ToadPlayer {
     }
 
     @Override
+    public Point getCheckAheadPoint() {
+        return checkAheadPoint;
+    }
+
+    @Override
+    public void updateCheckAheadPoint(Point marioLocation, double projectedMarioPathSlope) {
+        // The check ahead point is where we'll go towards based on Mario's current location and projected path
+        // It may either be ahead or behind him
+        checkAheadPoint = marioLocation.getPointWithSlopeAndDistance(projectedMarioPathSlope, this.checkAheadDistance);
+    }
+
+    @Override
     public double getDiveRange() {
         return diveRange;
     }
@@ -174,6 +187,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
     }
 
     private void dive() {
+        // When we dive, we get stuck on for a few cycles where we can't dive or step
         if (!diveLock) {
             int diveStepMultiplier = 3;
 
@@ -289,6 +303,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
 
     @Override
     public void reload(int generation) {
+        // Grab the next available Toad player (either completely random or generated from ES)
         if (generation == 0) {
             checkAheadDistance = MarioChaseHelper.randDouble(MarioChaseHelper.MIN_CHECK_AHEAD_DISTANCE, MarioChaseHelper.MAX_CHECK_AHEAD_DISTANCE);
             diveRange = MarioChaseHelper.randDouble(MarioChaseHelper.MIN_DIVE_RANGE, MarioChaseHelper.MAX_DIVE_RANGE);
@@ -320,6 +335,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
         totalClosingRate = 0;
         diveLock = false;
         remainingDiveLockCycles = 0;
+        checkAheadPoint = new Point(this.getLocation().getX(), this.getLocation().getY());
     }
 
     @Override
@@ -329,10 +345,18 @@ public final class ToadPlayerImpl implements ToadPlayer {
 
     @Override
     public void paintPlayer(Graphics g) {
+        // Paint the current distance from Mario above the player and the player properties text
         g.setColor(color);
         g.drawString(String.format("%d", currentDistanceFromMario), (int) location.getX() - 2, (int) location.getY() - 2);
         g.drawString(toString(), 10, 80 + (playerNumber * 20));
+
+        // Paint the player and the check ahead point
         g.fillOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
+        if (checkAheadPoint != null) {
+            g.drawOval((int) checkAheadPoint.getX(), (int) checkAheadPoint.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
+        }
+
+        // Paint the boarder around the player
         g.setColor(Color.WHITE);
         g.drawOval((int) location.getX(), (int) location.getY(), MarioChaseHelper.PLAYER_SIZE, MarioChaseHelper.PLAYER_SIZE);
     }

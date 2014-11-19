@@ -69,6 +69,7 @@ public class ToadIndividual implements Individual {
 
     @Override
     public Individual mutateNondestructive(double mean, double variance) {
+        // Clone before doing a destructive mutation
         ToadIndividual copy = new ToadIndividual();
 
         copy.generation = this.generation;
@@ -83,12 +84,9 @@ public class ToadIndividual implements Individual {
     @Override
     public void mutateDestructive(double mean, double variance) {
         // Algorithm 11
+        // Mutate the current individual to have slightly different properties
         double oldCAD = checkAheadDistance;
         checkAheadDistance = convolveValue(checkAheadDistance, MarioChaseHelper.MIN_CHECK_AHEAD_DISTANCE, MarioChaseHelper.MAX_CHECK_AHEAD_DISTANCE, mean, variance);
-
-        if (oldCAD == checkAheadDistance) {
-            System.err.println("PROBLEM" + checkAheadDistance);
-        }
         diveRange = convolveValue(diveRange, MarioChaseHelper.MIN_DIVE_RANGE, MarioChaseHelper.MAX_DIVE_RANGE, mean, variance);
         diveLikeliness = convolveValue(diveLikeliness, MarioChaseHelper.MIN_DIVE_LIKELINESS, MarioChaseHelper.MAX_DIVE_LIKELINESS, mean, variance);
     }
@@ -104,6 +102,7 @@ public class ToadIndividual implements Individual {
 
     @Override
     public double convolveValue(double value, double min, double max, double mean, double variance) {
+        // Do Gaussian convolution to slightly change the individual's properties
         double newValue = value + generateGaussianRandom(mean, variance);
 
         while (newValue < min || newValue > max) {

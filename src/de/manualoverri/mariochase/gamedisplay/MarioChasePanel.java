@@ -2,7 +2,8 @@ package de.manualoverri.mariochase.gamedisplay;
 
 import de.manualoverri.mariochase.events.GameOverListener;
 import de.manualoverri.mariochase.events.Notifier;
-import de.manualoverri.mariochase.gamelogic.*;
+import de.manualoverri.mariochase.gamelogic.MarioChaseHelper;
+import de.manualoverri.mariochase.gamelogic.PlayerCountException;
 import de.manualoverri.mariochase.gamelogic.mario.MarioPlayer;
 import de.manualoverri.mariochase.gamelogic.mario.MarioPlayerController;
 import de.manualoverri.mariochase.gamelogic.mario.MarioPlayerImpl;
@@ -17,7 +18,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import javax.swing.Timer;
 
 /**
  * User: Trong
@@ -47,6 +47,8 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     }
 
     private void init() {
+        // TODO: Get rid of this
+        // Clearing out DB at start of each game because I was worried about bad data
         DbHelper.executeUpdate("delete from lu_toad_player");
         DbHelper.executeUpdate("delete from lu_toad_individual");
 
@@ -56,7 +58,6 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
         toadController = new ToadPlayerController();
         Notifier.evolutionCompleteNotifier.addListener(toadController);
         Notifier.gameOverNotifier.addListener(this);
-
 
         try {
             m1 = MarioPlayerImpl.getInstance();
@@ -72,8 +73,6 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
         } catch (PlayerCountException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override
@@ -85,9 +84,11 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        // Paint the game panel
         g.setColor(Color.DARK_GRAY);
         g.fillRect(0, 0, MarioChaseHelper.GAME_WIDTH, MarioChaseHelper.GAME_HEIGHT);
 
+        // Paint the timers
         g.setColor(Color.WHITE);
         if (currentGameTimeMs >= 0) {
             g.drawString(String.format("Time remaining: %.1f", (GAME_LENGTH_MS - currentGameTimeMs) / 1000.0), 10, 20);
@@ -95,12 +96,14 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
             g.drawString(String.format("Head start time remaining: %.1f", -currentGameTimeMs / 1000.0), 10, 20);
         }
 
+        // Paint some text for debugging
         g.drawString(String.format("Mario actual: %s", m1.getLocation()), 10, 40);
         g.drawString(String.format("Mario guess: %s", toadController.getCurrentMarioLocation()), 10, 60);
         g.drawString(String.format("Game number: %d", gameNumber), 650, 20);
         g.drawString(String.format("Mario generation: %d", marioController.getGeneration()), 650, 40);
         g.drawString(String.format("Toad generation: %d", toadController.getGeneration()), 650, 60);
 
+        // Paint the players and their check ahead points
         m1.paintPlayer(g);
         t1.paintPlayer(g);
         t2.paintPlayer(g);
@@ -117,25 +120,30 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
     }
 
     @Override
-    public void keyReleased(KeyEvent e) { }
+    public void keyReleased(KeyEvent e) {
+    }
 
     @Override
-    public void keyTyped(KeyEvent e) { }
+    public void keyTyped(KeyEvent e) {
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (currentGameTimeMs >= GAME_LENGTH_MS) {
             Notifier.gameOverNotifier.notifyGameOver();
-        }
-        else {
+        } else {
+            // On each timer tick, make sure we make all of the players execute one "cycle" where the controllers
+            // decide which direction to face and what action to perform
             currentGameTimeMs += CYCLE_INTERVAL_MS;
             marioController.executeCycle();
 
+            // Game doesn't start for the toads until the initial countdown is done
             if (currentGameTimeMs == 0) {
                 toadController.setMarioLocation(m1.getLocation());
                 toadController.resume();
             }
 
+            // Each cycle checks if we've won already. If not, then keep going
             if (currentGameTimeMs >= 0) {
                 if (toadController.checkWinCondition()) {
                     Notifier.gameOverNotifier.notifyGameOver();
@@ -150,8 +158,9 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
 
     @Override
     public void onGameOver() {
+        // Save all of the players stats and reset the game
         // We have to convert time back to seconds before saving individuals
-        System.out.println("Game " + gameNumber + " over");
+        // System.out.println("Game " + gameNumber + " over");
         gameTimer.stop();
         marioController.pause();
         marioController.savePlayersAsIndividuals(currentGameTimeMs * 0.001, (GAME_LENGTH_MS - currentGameTimeMs) * 0.001);
@@ -161,7 +170,7 @@ public class MarioChasePanel extends JPanel implements KeyListener, ActionListen
         toadController.savePlayersAsIndividuals(currentGameTimeMs * 0.001, (GAME_LENGTH_MS - currentGameTimeMs) * 0.001);
         toadController.resetAndReloadPlayers();
 
-        // TODO display stats for a few seconds before auto resuming
+        // TODO: Display stats for a few seconds before auto resuming
         repaint();
 
         currentGameTimeMs = MarioChaseHelper.MARIO_START_AHEAD_MS;

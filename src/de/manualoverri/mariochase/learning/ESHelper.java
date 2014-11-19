@@ -10,5 +10,4 @@ public class ESHelper {
     public static final int NUM_CHILDREN = 12;
     public static final double MEAN = 0;
     public static final double MUTATION_RATE = 0.5;
-
 }
