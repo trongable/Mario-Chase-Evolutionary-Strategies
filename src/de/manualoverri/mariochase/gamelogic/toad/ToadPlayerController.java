@@ -100,7 +100,7 @@ public class ToadPlayerController implements MarioChasePlayerController, Evoluti
             // On each cycle, we choose whether or not we should dive or step based on the player's properties
             for (ToadPlayer player : players) {
                 if (player.getCurrentDistanceFromMario() <= player.getDiveRange()) {
-                    if (Math.random() > player.getDiveLikeliness()) {
+                    if (MarioChaseHelper.randDouble(0, 1) <= player.getDiveLikeliness()) {
                         player.diveAndUpdateDistances(currentGuessedMarioLocation);
                     } else {
                         player.stepAndUpdateDistances(currentGuessedMarioLocation);

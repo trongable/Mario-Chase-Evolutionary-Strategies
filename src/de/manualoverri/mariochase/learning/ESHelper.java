@@ -5,9 +5,10 @@ package de.manualoverri.mariochase.learning;
  */
 public class ESHelper {
 
-    public static final int POPULATION_SIZE = 16;
-    public static final int NUM_PARENTS = 4;
-    public static final int NUM_CHILDREN = 12;
+    public static final int POPULATION_SIZE = 64;
+    public static final int NUM_PARENTS = 16;
+    public static final int NUM_CHILDREN = 48;
     public static final double MEAN = 0;
-    public static final double MUTATION_RATE = 0.5;
+    public static final double MUTATION_RATE = 0.1;
+    public static final double ANNEALING_RATE = 0.05;
 }

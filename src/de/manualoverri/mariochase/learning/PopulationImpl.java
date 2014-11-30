@@ -2,6 +2,7 @@ package de.manualoverri.mariochase.learning;
 
 import de.manualoverri.mariochase.events.EvolutionCompleteListener;
 import de.manualoverri.mariochase.events.Notifier;
+import de.manualoverri.mariochase.gamelogic.MarioChaseHelper;
 import de.manualoverri.mariochase.gamelogic.MarioChasePlayerType;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -72,7 +73,7 @@ public class PopulationImpl implements Population {
         // TODO: Implement withReplacement check
         List<Individual> result = new ArrayList<Individual>(n + 1);
         for (int i = 0; i < n; i++) {
-            result.add(population.get((int) (Math.random() * n)));
+            result.add(population.get((int) (MarioChaseHelper.randDouble(0, 1) * n)));
         }
 
         return result;
@@ -133,11 +134,17 @@ public class PopulationImpl implements Population {
         Collections.sort(population, new IndividualComparator());
 
         // Pick out the best parents to create the next generation
+        int annealingIndex = population.size() - 1;
         List<Individual> nextGenerationParents = new ArrayList<Individual>(numParents + numChildren);
         List<Individual> nextGenerationPopulation = new ArrayList<Individual>(numParents + numChildren);
         for (int i = 0; i < numParents; i++) {
-            // TODO: Simulated annealing
-            nextGenerationParents.add(population.get(i));
+            if (MarioChaseHelper.randDouble(0, 1) <= ESHelper.ANNEALING_RATE) {
+                nextGenerationParents.add(population.get(annealingIndex--));
+            }
+            else {
+                nextGenerationParents.add(population.get(i));
+            }
+
             nextGenerationPopulation.add(population.get(i));
         }
 
