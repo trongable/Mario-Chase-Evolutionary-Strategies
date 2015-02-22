@@ -17,6 +17,7 @@ import java.sql.SQLException;
 public final class ToadPlayerImpl implements ToadPlayer {
     private static int toadCount = 0;
     private final static int DIVE_LOCK_CYCLES = 15;
+    private final static double MIN_VERY_CLOSE_DISTANCE = 20;
 
     private int id;
     private double checkAheadDistance;
@@ -61,6 +62,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
         totalDistanceFromMario = 0;
         lastClosingRate = 0;
         totalClosingRate = 0;
+        veryCloseCycles = 0;
 
         diveLock = false;
         remainingDiveLockCycles = 0;
@@ -184,6 +186,10 @@ public final class ToadPlayerImpl implements ToadPlayer {
     public void stepAndUpdateDistances(Point marioLocation) {
         step();
         updateDistances(marioLocation);
+
+        if (currentDistanceFromMario < MIN_VERY_CLOSE_DISTANCE) {
+            veryCloseCycles++;
+        }
     }
 
     private void dive() {
@@ -209,6 +215,10 @@ public final class ToadPlayerImpl implements ToadPlayer {
     public void diveAndUpdateDistances(Point marioLocation) {
         dive();
         updateDistances(marioLocation);
+
+        if (currentDistanceFromMario < MIN_VERY_CLOSE_DISTANCE) {
+            veryCloseCycles++;
+        }
     }
 
     @Override
@@ -222,11 +232,6 @@ public final class ToadPlayerImpl implements ToadPlayer {
 
         if (lastClosingRate > maxClosingRate) {
             maxClosingRate = lastClosingRate;
-        }
-
-        double minVeryCloseDistance = 20;
-        if (currentDistanceFromMario < minVeryCloseDistance) {
-            veryCloseCycles++;
         }
     }
 
@@ -333,6 +338,7 @@ public final class ToadPlayerImpl implements ToadPlayer {
         totalDistanceFromMario = 0;
         lastClosingRate = 0;
         totalClosingRate = 0;
+        veryCloseCycles = 0;
         diveLock = false;
         remainingDiveLockCycles = 0;
         checkAheadPoint = new Point(this.getLocation().getX(), this.getLocation().getY());

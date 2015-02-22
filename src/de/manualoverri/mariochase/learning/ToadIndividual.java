@@ -53,13 +53,13 @@ public class ToadIndividual implements Individual {
     }
 
     @Override
-    public double evaulateFitness() {
+    public double evaluateFitness() {
         fitnessScore = (remainingTime * 0.01) +
                 (remainingDistance * 0.01) +
                 (averageDistance * 1) +
                 (maxClosingRate * 1) +
                 (averageClosingRate * 100) +
-                (veryCloseCycles * 1);
+                (veryCloseCycles * 0.1);
 
         String sql = "UPDATE lu_toad_individual SET fitness=" + fitnessScore + " where id=" + id;
         DbHelper.executeUpdate(sql);

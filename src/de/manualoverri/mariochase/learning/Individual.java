@@ -9,7 +9,7 @@ public interface Individual {
 
     public double getFitnessScore();
 
-    public double evaulateFitness();
+    public double evaluateFitness();
 
     public Individual mutateNondestructive(double mean, double variance);
 

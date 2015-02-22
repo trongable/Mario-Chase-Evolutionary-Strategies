@@ -82,7 +82,7 @@ public class PopulationImpl implements Population {
     @Override
     public void evaluateFitnesses() {
         for (Individual i : population) {
-            i.evaulateFitness();
+            i.evaluateFitness();
         }
     }
 
